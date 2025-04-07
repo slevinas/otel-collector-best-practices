@@ -1,6 +1,5 @@
 
-### 📁 Project Folder Structure – `xplg-api-benchmaker-runner`
-
+### 📁 Project Folder Structure – xplg-api-benchmaker-runner
 xplg-api-benchmaker-runner/ 
 │ 
 ├── api_fastapi/                 # 🚀 FastAPI application with decorated endpoints 
