@@ -1,0 +1,18 @@
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtualenv
+.venv/
+
+# macOS
+.DS_Store
+.idea/
+benchmarks/
+tmp_benchmarks/
+tmp_benchmarks_backup/.env
+.env
