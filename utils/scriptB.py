@@ -16,7 +16,7 @@ def get_resource_from_api(url: str) -> dict:
         raise ValueError("Expected top-level JSON object")
     return json_data
 
-def get_value_from_data(key_path: str, json_data: dict, *, default=None, raise_errors=True) -> any:
+def extract_value_from_json(key_path: str, json_data: dict, *, default=None, raise_errors=True) -> any:
     """
     Extracts a value from a potentially deep or irregular JSON object
     using a dot-separated key path like "user.address.city".
@@ -48,4 +48,4 @@ def get_value_from_resource(url: str, key: str) -> any:
     Combines `get_resource_from_api` and `get_value_from_data`.
     """
     json_data = get_resource_from_api(url)
-    return get_value_from_data(key_path=key, json_data=json_data)
+    return extract_value_from_json(key_path=key, json_data=json_data)

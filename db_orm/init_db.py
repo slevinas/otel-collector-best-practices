@@ -3,8 +3,9 @@ load_dotenv()
 
 import asyncio
 from db_orm.db import engine
-from api_fastapi.db.models import Base, ApiBenchmarkLog,   # ✅ Import it explicitly!
-from benchmaker.db.models import Base, Benchmark
+from db_orm.base import Base
+from api_fastapi.db.models import  ApiBenchmarkLog ,StoredResource
+from benchmaker.db.bench_models import  Benchmark
 
 async def init_models():
     async with engine.begin() as conn:

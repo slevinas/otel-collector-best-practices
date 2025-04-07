@@ -1,10 +1,10 @@
 # models.py
 
 from sqlalchemy import Column, Integer, String, Float, JSON, TIMESTAMP, ARRAY
-from sqlalchemy.ext.declarative import declarative_base
+from db_orm.base import Base
 from datetime import datetime
 
-Base = declarative_base()
+
 
 class ApiBenchmarkLog(Base):
     __tablename__ = "api_monitor"

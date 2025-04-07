@@ -1,14 +1,17 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends,Request
 from pydantic import BaseModel, RootModel, Field
 from typing import Dict
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordRequestForm
+
 from jose import JWTError, jwt
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from db_orm.db import get_db
 from api_fastapi.db.models import ApiBenchmarkLog,StoredResource
+from api_fastapi.db.api_db_handlers import store_json_db, get_stored_json_db
 from api_fastapi.db.api_monitor_decorator import benchmark_endpoint
-from utils.scriptB import get_value_from_data
+from utils.scriptB import extract_value_from_json
+from api_fastapi.app_config import add_bearer_auth_to_openapi
 # from api_fastapi.db import api_monitor_decorator
 
 # === Auth Setup ===
@@ -18,8 +21,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Dummy user
 fake_user = {"username": "admin", "password": "admin123"}
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = HTTPBearer()
 def authenticate_user(username: str, password: str) -> bool:
     return username == fake_user["username"] and password == fake_user["password"]
 
@@ -28,10 +31,20 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+async def get_current_user(token: HTTPAuthorizationCredentials = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username != fake_user["username"]:
+            raise HTTPException(status_code=401, detail="Invalid user")
+        return {"username": username}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username != fake_user["username"]:
             raise HTTPException(status_code=401, detail="Invalid user")
@@ -52,6 +65,8 @@ app = FastAPI(title="JSON Key Reader API",
         "name": "MIT",
         "url": "https://opensource.org/licenses/MIT"
     })
+
+add_bearer_auth_to_openapi(app)
 
 # === Pydantic Models ===
 class StoredJson(RootModel):
@@ -94,9 +109,15 @@ class VectorMathResponse(RootModel):
     tags=["Auth"]
 )
 @benchmark_endpoint("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(
+request: Request,
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+
+):
     if not authenticate_user(form_data.username, form_data.password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
+
     token = create_access_token({"sub": form_data.username}, timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     return {"access_token": token, "token_type": "bearer"}
 
@@ -121,7 +142,7 @@ def protected_route(current_user: dict = Depends(get_current_user)):
     }
 )
 @benchmark_endpoint("/store")
-async def store_json(name: str, body: StoredJson, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def store_json(request: Request,name: str, body: StoredJson, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     return await store_json_db(name, body.root, db)
 
 @app.get(
@@ -136,7 +157,7 @@ async def store_json(name: str, body: StoredJson, current_user: dict = Depends(g
     }
 )
 @benchmark_endpoint("/store")
-async def get_stored(name: str, key: str | None = None, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_stored(request: Request,name: str, key: str | None = None, current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     return await get_stored_json_db(name, key, db)
 
 @app.post(
@@ -152,7 +173,7 @@ async def get_stored(name: str, key: str | None = None, current_user: dict = Dep
     }
 )
 @benchmark_endpoint("run_vectorized_math")
-async def run_vector_math_endpoint(body: MathRequest, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+async def run_vector_math_endpoint(request: Request,body: MathRequest, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     try:
         result = await run_vector_math_db(body.operation, body.sources, db)
         return result
