@@ -1,0 +1,27 @@
+version: '2.4'
+
+services:
+  postgres:
+    container_name: xplg-postgres
+    image: arm64v8/postgres:15.2
+    ports:
+      - '5435:5432'
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: xplg_pass
+      POSTGRES_DB: xplg_db
+      POSTGRES_USER: xplg_user
+    healthcheck:
+      test: pg_isready -U xplg_user -h 127.0.0.1
+    volumes:
+      - xplg-db:/var/lib/postgresql/data
+
+  adminer:
+    container_name: xplg-adminer
+    image: adminer
+    restart: always
+    ports:
+      - '8881:8888'
+
+volumes:
+  xplg-db:

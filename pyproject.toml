@@ -1,0 +1,47 @@
+[project]
+name = "xplg-api-benchmaker-runner"
+version = "0.1.0"
+description = ""
+authors = [{ name = "Sagi Levinas", email = "slevinas@gmail.com" }]
+
+
+
+
+package-mode = true
+readme = "README.md"
+requires-python = ">=3.9,<3.13"
+
+[tool.poetry]
+packages = [
+  { include = "api_fastapi", from = "." },
+  { include = "benchmaker", from = "." },
+  { include = "db_orm", from = "." }
+]
+
+[tool.poetry.dependencies]
+fastapi = ">=0.115.2,<0.116.0"
+sqlalchemy = ">=2.0.40,<3.0.0"
+asyncpg = ">=0.30.0,<0.31.0"
+uvicorn = ">=0.34.0,<0.35.0"
+psycopg2 = ">=2.9.10,<3.0.0"
+typer = ">=0.15.2,<0.16.0"
+requests = ">=2.32.3,<3.0.0"
+python-jose = { extras = ["cryptography"], version = ">=3.4.0,<4.0.0" }
+python-multipart = ">=0.0.20,<0.0.21"
+python-dotenv = ">=1.1.0,<2.0.0"
+greenlet = ">=3.1.1,<4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^25.1.0"
+isort = "^6.0.1"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
