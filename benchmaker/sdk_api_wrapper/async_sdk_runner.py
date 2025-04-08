@@ -1,24 +1,27 @@
 import asyncio
 from benchmaker.sdk_api_wrapper.async_sdk_benchmaker_client import JsonKeyReaderClient
 
-async def main():
-    client = JsonKeyReaderClient("http://127.0.0.1:8010", "admin", "admin123")
+BASE_URL = "http://127.0.0.1:8010"
+USERNAME = "admin"
+PASSWORD = "admin123"
 
-    print("\n🔐 Logging in...")
+async def simulate_user(user_id: int):
+    client = JsonKeyReaderClient(BASE_URL, USERNAME, PASSWORD)
+    print(f"👤 User {user_id}: Logging in...")
     await client.login()
 
-    print("\n📦 Storing A...")
-    await client.store("A", {"x": {"value": 10}, "y": {"value": 4}})
+    name = f"A{user_id}"
+    payload = {"x": {"value": user_id}, "y": {"value": user_id * 2}}
 
-    print("\n📦 Storing B...")
-    await client.store("B", {"x": {"value": 2}, "y": {"value": 1}})
+    print(f"📦 User {user_id}: Storing {name}...")
+    await client.store(name, payload)
 
-    print("\n➕ Running math (add)...")
-    result = await client.run_math("add", ["A", "B"])
-    print("✅ Math result:", result)
+    # You can optionally store a second value (like B{user_id}) and run math
+    # Then use: await client.run_math("add", [f"A{user_id}", f"B{user_id}"])
 
-    print("\n📂 Fetching stored A...")
-    stored = await client.get_stored("A")
-    print("✅ Stored A:", stored)
+async def main():
+    users = 100
+    await asyncio.gather(*(simulate_user(i) for i in range(users)))
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
