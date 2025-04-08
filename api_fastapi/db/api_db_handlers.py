@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from db_orm.db import get_db
-from api_fastapi.db.models import StoredResource,ApiBenchmarkLog
+from api_fastapi.db.models import StoredResource, ApiBenchmarkLog
 
 
 # --- Store JSON into PostgreSQL ---
@@ -80,13 +80,49 @@ async def run_vector_math_db(operation: str, sources: list[str], db: AsyncSessio
         raise HTTPException(status_code=400, detail=f"Math error: {str(e)}")
 
 
-async def save_benchmark_db(name: str, operation: str, sources: list[str], result: dict, elapsed: float, db: AsyncSession):
-    benchmark = Benchmark(
-        name=name,
-        operation=operation,
-        sources=sources,
-        result=result,
-        elapsed=elapsed
-    )
-    db.add(benchmark)
-    await db.commit()
+# async def save_benchmark_db(name: str, operation: str, sources: list[str], result: dict, elapsed: float, db: AsyncSession):
+#     benchmark = Benchmark(
+#         name=name,
+#         operation=operation,
+#         sources=sources,
+#         result=result,
+#         elapsed=elapsed
+#     )
+#     db.add(benchmark)
+#     await db.commit()
+
+
+
+async def run_vector_math_db2(operation: str, sources: list[str], db: AsyncSession):
+    print(f"zigi running run_vector_math_db2")
+    if operation not in {"add", "subtract"}:
+        raise HTTPException(status_code=400, detail=f"Unsupported operation: {operation}")
+
+    # Fetch all source resources
+    data_list = []
+    for name in sources:
+        stmt = select(StoredResource).where(StoredResource.name == name)
+        result = await db.execute(stmt)
+        resource = result.scalar_one_or_none()
+        if not resource:
+            raise HTTPException(status_code=404, detail=f"Resource not found: {name}")
+        data_list.append(resource.data)
+
+    # Merge keys and perform vector operation
+    output = {}
+    keys = set().union(*[data.keys() for data in data_list])
+
+    for key in keys:
+        try:
+            values = [d[key]["value"] for d in data_list]
+            if operation == "add":
+                result = sum(values)
+            elif operation == "subtract":
+                result = values[0]
+                for v in values[1:]:
+                    result -= v
+            output[key] = {"value": result}
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Math error at key '{key}': {str(e)}")
+
+    return output
