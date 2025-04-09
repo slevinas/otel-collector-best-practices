@@ -16,10 +16,10 @@ async def simulate_user(user_id: int):
 
     await client.store("A", payload_A)
     await client.store("B", payload_B)
-    # await client.get_stored("A", key="y")
-    # await client.get_stored("A", key="x")
-    # await client.get_stored("B",key="x")
-    # await client.get_stored("B",key="y")
+    await client.get_stored("A", key="y")
+    await client.get_stored("A", key="x")
+    await client.get_stored("B",key="x")
+    await client.get_stored("B",key="y")
     result = await client.run_math("add", ["A", "B"])
 
     print(f"✅ User {user_id} got result: {result}")

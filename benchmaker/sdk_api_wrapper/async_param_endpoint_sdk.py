@@ -41,7 +41,7 @@ async def simulate_user(user_id: int, requests_per_user: int, delay: float, veri
             payload_A = {"x": {"value": user_id}, "y": {"value": user_id + 2}}
 
         start = time.perf_counter()
-        await client.store("A", payload_A)
+
         cycle_timers["store_A"] = time.perf_counter() - start
 
         # --- Store Resource B ---
@@ -94,3 +94,47 @@ async def simulate_user(user_id: int, requests_per_user: int, delay: float, veri
         "user_id": user_id,
         "cycles": cycles
     }
+
+
+async def main(user_count: int, requests_per_user: int, delay: float, verify: bool, use_random: bool):
+    # Run all simulated users concurrently.
+    summaries = await asyncio.gather(
+        *(simulate_user(i, requests_per_user, delay, verify, use_random) for i in range(1, user_count + 1))
+    )
+
+    # Aggregate timings per endpoint
+    endpoints = ["store_A", "store_B", "run_math"]
+    endpoint_metrics = {ep: [] for ep in endpoints}
+
+    for summary in summaries:
+        for cycle in summary["cycles"]:
+            for ep in endpoints:
+                if ep in cycle["timers"]:
+                    endpoint_metrics[ep].append(cycle["timers"][ep])
+
+    print("\n📊 Benchmark Report Per Endpoint:")
+    for ep, times in endpoint_metrics.items():
+        if times:
+            avg = sum(times) / len(times)
+            stddev = statistics.stdev(times) if len(times) > 1 else 0.0
+            mn = min(times)
+            mx = max(times)
+            count = len(times)
+            print(f"{ep}: Count={count}, Avg={avg:.4f}s, StdDev={stddev:.4f}s, Min={mn:.4f}s, Max={mx:.4f}s")
+        else:
+            print(f"{ep}: No data")
+
+    return summaries
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Async SDK Load Test with Benchmark Aggregation and Verification")
+    parser.add_argument("--users", type=int, default=5, help="Number of concurrent users")
+    parser.add_argument("--requests-per-user", type=int, default=3, help="Number of request cycles per user")
+    parser.add_argument("--delay", type=float, default=0.0, help="Delay (in seconds) between each cycle")
+    parser.add_argument("--verify", action="store_true", help="Verify vectorized math results using random payloads")
+    parser.add_argument("--randomize", action="store_true", help="Use random payloads for store operations")
+    args = parser.parse_args()
+
+    asyncio.run(main(args.users, args.requests_per_user, args.delay, args.verify, args.randomize))
+

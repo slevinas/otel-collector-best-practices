@@ -1,4 +1,14 @@
 
+### How to run the apps:
+1. `poetry run uvicorn api_fastapi.scriptA_api_psql:app --reload --port 8010`
+2. Activate docker postrgesql (i'm using MacOs M1) 
+ `cd db_orm & docker-compose up`
+3. Initialize sqlAlchemy and (database tables)
+`` poetry run python -m db_orm.init_db    ``
+
+
+
+
 ### 📁 Project Folder Structure – xplg-api-benchmaker-runner
 ```
 xplg-api-benchmaker-runner/ 

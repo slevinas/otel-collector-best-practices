@@ -13,6 +13,7 @@ class JsonKeyReaderClient:
 
     async def login(self):
         async with httpx.AsyncClient() as client:
+            print("📢 Initiating login request...")
             start = datetime.utcnow()
             url = f"{self.base_url}/login"
             data= {"username": self.username, "password": self.password}
