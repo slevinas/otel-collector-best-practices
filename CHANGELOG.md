@@ -11,14 +11,15 @@
     {"x": {"value": <random_value>}, "y": {"value": <random_value>}}
     ```
   - Examples:
-    - To store with randomized values (default range 0.0 - 10.0):  
-      ```
-      python cli.py store TestStore --randomize
-      ```
-    - To store with randomized values within a custom range (e.g., 5 to 20):  
-      ```
-      python cli.py store TestStore --randomize --min 5 --max 20
-      ```
+
+      - To store with randomized values (default range 0.0 - 10.0):  
+        ```
+        poetry run python ./benchmaker/sdk_api_wrapper/cli.py TestStoreViaCli --randomize
+        ```
+      - To store with randomized values within a custom range (e.g., 5 to 20):  
+        ```
+         poetry run python ./benchmaker/sdk_api_wrapper/cli.py TestStoreViaCli  --randomize --min 5 --max 20
+        ```
 - CLI usage updated to include help messages for the new options.
 
 ## [0.3.1] - YYYY-MM-DD
