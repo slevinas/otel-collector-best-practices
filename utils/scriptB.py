@@ -16,36 +16,50 @@ def get_resource_from_api(url: str) -> dict:
         raise ValueError("Expected top-level JSON object")
     return json_data
 
-def extract_value_from_json(key_path: str, json_data: dict, *, default=None, raise_errors=True) -> any:
-    """
-    Extracts a value from a potentially deep or irregular JSON object
-    using a dot-separated key path like "user.address.city".
-    """
-    try:
-        keys = key_path.split(".")
-        value = json_data
 
-        for key in keys:
-            if isinstance(value, dict):
-                value = value[key]
-            elif isinstance(value, list):
-                value = value[int(key)]
+
+
+def get_value_from_resource(nested_key:str, data:dict):
+
+    """
+    Retrieve a nested value from a dictionary using a dot-seperated key string
+        Args:
+            nested_key(str): Astring with keys seperated by dots, e.g., "z.value".
+            data (dict): The JSON dict from which to extract the value.
+        Returns:
+            The nested value if all keys exist.
+        Raises:
+            keyError: If a key in the nested path is missing.
+            TypeError: If and intermediate value is not a dict.
+    """
+    if not isinstance(nested_key, str) or not nested_key:
+        raise ValueError("The nested key must be a non-empty string.")
+
+    keys = nested_key.split(".")
+    value = data
+
+    for k in keys:
+        if isinstance(value, dict):
+            if k in value:
+                value = value[k]
             else:
-                raise KeyError(f"Cannot descend into type {type(value)} at key '{key}'")
-
-        return value
-
-    except Exception as e:
-        if raise_errors:
-            raise ValueError(f"Failed to extract value from key path '{key_path}': {e}")
+                raise KeyError(f"Key '{k}' not found at this level. Available keys: {list(value.keys())}")
         else:
-            print(f"[WARN] Failed to extract '{key_path}': {e}")
-            return default
+            raise TypeError(f"Expected a dictionary at key '{k}', but got a {type(value).__name__} instead.")
 
-def get_value_from_resource(url: str, key: str) -> any:
+    return value
+
+
+
+def extract_value_from_json(nested_key: str, data: dict):
     """
-    Fetches a JSON object from a URL and extracts the value for a given key path.
-    Combines `get_resource_from_api` and `get_value_from_data`.
+    Alias for get_value_from_resource for backward compatibility or convenience.
+
+    Args:
+        nested_key (str): A dot-separated key path.
+        data (dict): JSON data in dictionary form.
+
+    Returns:
+        The nested value.
     """
-    json_data = get_resource_from_api(url)
-    return extract_value_from_json(key_path=key, json_data=json_data)
+    return get_value_from_resource(nested_key, data)

@@ -1,5 +1,6 @@
 
 ### 📁 Project Folder Structure – xplg-api-benchmaker-runner
+```
 xplg-api-benchmaker-runner/ 
 │ 
 ├── api_fastapi/                 # 🚀 FastAPI application with decorated endpoints 
@@ -25,4 +26,4 @@ xplg-api-benchmaker-runner/
 │ ├── .env                      # Environment file with DB creds, etc. 
 ├── docker-compose.yml          # Optional: PG container or stack setup 
 ├── pyproject.toml / poetry.lock # Project dependencies and virtual env config 
-└── README.md / CHANGELOG.md    # 📘 Docs and update history
+└── README.md / CHANGELOG.md    # 📘 Docs and update history```
