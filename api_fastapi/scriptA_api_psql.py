@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 from db_orm.db import get_db
 from api_fastapi.db.models import ApiBenchmarkLog,StoredResource
-from api_fastapi.db.api_db_handlers import store_json_db, get_stored_json_db,run_vector_math_db,run_vector_math_db2
+from api_fastapi.db.api_db_handlers import store_json_db, get_stored_json_db,run_vector_math_db
 from api_fastapi.db.api_monitor_decorator import benchmark_endpoint
 from utils.scriptB import extract_value_from_json
 from api_fastapi.app_config import add_bearer_auth_to_openapi
@@ -176,7 +176,7 @@ async def get_stored(request: Request,name: str, key: str | None = None, current
 @benchmark_endpoint("run_vectorized_math")
 async def run_vector_math_endpoint(request: Request,body: MathRequest, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     try:
-        result = await run_vector_math_db2(body.operation, body.sources, db)
+        result = await run_vector_math_db(body.operation, body.sources, db)
         return result
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Math error: {str(e)}")

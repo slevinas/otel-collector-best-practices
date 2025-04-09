@@ -63,3 +63,42 @@ def extract_value_from_json(nested_key: str, data: dict):
         The nested value.
     """
     return get_value_from_resource(nested_key, data)
+
+
+
+def get_value_from_resource_recursive(nested_key: str, data: dict):
+    """
+    Retrieve a nested value from a dictionary using a recursive approach.
+
+    Args:
+        nested_key (str): A dot-separated key string, e.g., "x.value".
+        data (dict): The JSON dictionary from which to extract the value.
+
+    Returns:
+        The nested value if all keys exist.
+
+    Raises:
+        KeyError: If a key in the nested path is missing.
+        TypeError: If an intermediate value is not a dict.
+    """
+    if not isinstance(nested_key, str) or not nested_key:
+        raise ValueError("The nested key must be a non-empty string.")
+
+    # Split only on the first dot
+    parts = nested_key.split(".", 1)
+    key = parts[0]
+
+    if not isinstance(data, dict):
+        raise TypeError(f"Expected a dictionary when looking for key '{key}', but got a {type(data).__name__}")
+
+    if key not in data:
+        raise KeyError(f"Key '{key}' not found. Available keys: {list(data.keys())}")
+
+    # If there's only one part, we're at our target value
+    if len(parts) == 1:
+        return data[key]
+    else:
+        # Recurse with the remainder of the nested key on the next level of data
+        return get_value_from_resource_recursive(parts[1], data[key])
+
+

@@ -56,6 +56,7 @@ async def run_vector_math_db(operation: str, sources: list[str], db: AsyncSessio
         stmt = select(StoredResource).where(StoredResource.name.in_(sources))
         result = await db.execute(stmt)
         resources = {r.name: r.data for r in result.scalars()}
+        print(f"zigi from run_vector_math_db the resourses are: {resources}")
 
         if len(resources) < len(sources):
             missing = set(sources) - set(resources.keys())
