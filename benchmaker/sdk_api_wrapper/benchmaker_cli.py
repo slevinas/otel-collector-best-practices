@@ -2,16 +2,17 @@ import typer
 import asyncio
 from typing import Optional
 import json
+from simulate_login_benchmark import simulate_login_benchmark
 
 app = typer.Typer()
 
 # Dummy simulation functions to demonstrate. Replace these with your actual benchmark functions.
 # In your real implementation, these functions should be imported from your SDK-runner module.
 
-async def simulate_login_benchmark(users: int, requests_per_user: int):
-    # Simulate running the /login endpoint benchmark. Replace with your actual function.
-    await asyncio.sleep(0.1)  # Simulate async work
-    return f"/login benchmark: {users} users, {requests_per_user} cycles"
+# async def simulate_login_benchmark(users: int, requests_per_user: int):
+#     # Simulate running the /login endpoint benchmark. Replace with your actual function.
+#     await asyncio.sleep(0.1)  # Simulate async work
+#     return f"/login benchmark: {users} users, {requests_per_user} cycles"
 
 async def simulate_store_benchmark(users: int, requests_per_user: int, payload: dict):
     # Simulate running the /store endpoint benchmark.
@@ -102,4 +103,7 @@ def benchmark(
         typer.echo(f"{ep}: {res}")
 
 if __name__ == "__main__":
+    """
+    poetry run python benchmaker_cli.py benchmark --endpoint "/login" --users 2 --requests-per-user 5
+"""
     app()
