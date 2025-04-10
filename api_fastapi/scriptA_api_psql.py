@@ -24,7 +24,7 @@ fake_user = {"username": "admin", "password": "admin123"}
 # oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 oauth2_scheme = HTTPBearer()
 def authenticate_user(username: str, password: str) -> bool:
-    print(f"zigi login in with{username} and {password}")
+    # print(f"zigi login in with{username} and {password}")
     return username == fake_user["username"] and password == fake_user["password"]
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):

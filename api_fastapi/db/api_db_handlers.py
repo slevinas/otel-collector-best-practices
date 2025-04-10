@@ -56,14 +56,20 @@ async def run_vector_math_db(operation: str, sources: list[str], db: AsyncSessio
         stmt = select(StoredResource).where(StoredResource.name.in_(sources))
         result = await db.execute(stmt)
         resources = {r.name: r.data for r in result.scalars()}
-        print(f"zigi from run_vector_math_db the resourses are: {resources}")
+        # print(f"zigi from run_vector_math_db the resourses are: {resources}")
+        # {'A': {'x': {'value': 5.0}, 'y': {'value': 3.0}},
+        #  'B': {'x': {'value': 6.86024533843412}, 'y': {'value': 9.735505361221492}}}
 
         if len(resources) < len(sources):
             missing = set(sources) - set(resources.keys())
             raise ValueError(f"Missing resources in DB: {missing}")
 
         base = resources[sources[0]]
+        # print(f"zigi from run_vector_math_db the base is: {base}")
+        # {'x': {'value': 5.0}, 'y': {'value': 3.0}}
         result = {k: {"value": base[k]["value"]} for k in base}
+        # print(f"zigi from run_vector_math_db the result is: {result}")
+        # {'x': {'value': 5.0}, 'y': {'value': 3.0}}
 
         for src in sources[1:]:
             for key in result:

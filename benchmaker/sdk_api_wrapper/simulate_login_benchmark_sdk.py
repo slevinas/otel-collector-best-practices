@@ -1,4 +1,4 @@
-# simulate_login_benchmark.py
+# simulate_login_benchmark_sdk.py
 
 import asyncio
 import time
@@ -37,9 +37,19 @@ async def simulate_login_benchmark(users: int, requests_per_user: int):
 
     # Run all simulated users concurrently
     results = await asyncio.gather(*(simulate_single_user(user_id) for user_id in range(1, users + 1)))
+    # [{'user_id': 1, 'timings': [0.2912240410223603], 'avg': 0.2912240410223603},
+    #  {'user_id': 2, 'timings': [0.24808416701853275], 'avg': 0.24808416701853275},
+    #  {'user_id': 3, 'timings': [0.24727779207751155], 'avg': 0.24727779207751155}]
+    #
+    # print("\n--- Results of simulating_single_uer ---")
+    # print(results)
 
     # Aggregate all timings across users
     all_timings = [t for res in results for t in res["timings"]]
+    # [0.21309054200537503, 0.1704330421052873, 0.1672944170422852]
+
+    # print("\n--- Results of simulating_single_uer of all_timing of the results ---")
+    # print(all_timings)
     overall_avg = sum(all_timings) / len(all_timings) if all_timings else 0
 
     print("\n--- Overall Login Benchmark ---")
@@ -47,6 +57,7 @@ async def simulate_login_benchmark(users: int, requests_per_user: int):
     print(f"Overall average login time: {overall_avg:.4f} seconds")
 
     return {"results": results, "overall_avg": overall_avg}
+
 
 
 # Test harness to run the login benchmark
