@@ -1,5 +1,7 @@
 # OpenTelemetry Collector – TLS/mTLS Best Practices & Example
 
+---
+
 ## Overview
 
 This repo demonstrates **secure OpenTelemetry data collection** using TLS/mTLS and shows how to tag telemetry for organization-wide observability. It’s designed for XPLG developers deploying the OTel Collector in Docker (or K8s) with instrumented services using the Python SDK.
@@ -42,7 +44,7 @@ This repo demonstrates **secure OpenTelemetry data collection** using TLS/mTLS a
 
 ---
 
-## Certificate Lifecycle & File Layout
+#### Certificate Lifecycle & File Layout
 
 **Certs needed:**
 
@@ -69,6 +71,8 @@ chmod 644 ca.crt server.crt client.crt
 
 Tip: For dev, SAN should include both otel-collector (container DNS) and localhost.
 ```
+
+---
 
 #### Collector Configuration (TLS/mTLS)
 
@@ -126,6 +130,8 @@ service:
 
 - file/tagged_metrics writes metrics to local disk for inspection.
 
+---
+
 ### Docker Compose Example
 
 ```yaml
@@ -144,6 +150,8 @@ services:
       - ./certs:/etc/otel/certs:ro
     restart: unless-stopped
 ```
+
+---
 
 ### Enriching Metrics (Transform/Attributes)
 
@@ -173,6 +181,8 @@ processors:
           - set(datapoint.attributes["client_id"], resource.attributes["service.name"])
 ```
 
+---
+
 ### Testing TLS/mTLS Connectivity
 
 #### Manual test with curl:
@@ -191,14 +201,18 @@ curl -v https://localhost:4318/v1/metrics \
 
 - Collector logs show handshake errors if TLS config is wrong.
 
+---
+
 ### Troubleshooting
 
-##### Symptom ##### Diagnosis ##### Solution
+Symptom Diagnosis Solution
 
 “Client sent an HTTP request to an HTTPS…” Mismatch between endpoint protocol and config Use correct https/http
 “TLS handshake failed” Wrong cert, CN/SAN, or CA on either side Recheck certs
 “connection refused” Wrong port, IP, or container not running Check docker-compose
 “no data in exporter” Pipeline or file path misconfigured Check config/logs
+
+---
 
 #### Critical checks:
 
@@ -210,6 +224,8 @@ curl -v https://localhost:4318/v1/metrics \
 
 - Practice cert renewal before certs expire.
 
+---
+
 ### Further Reading
 
 [OpenTelemetry Collector TLS/mTLS Authentication (official docs)](https://opentelemetry.io/docs/collector/configuration/#authentication)
@@ -218,7 +234,7 @@ curl -v https://localhost:4318/v1/metrics \
 
 [Collector Processors: transform](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor)
 
-OpenTelemetry Security Best Practices (blog) --> [Hardening the Collector Episode 1: A new default bind address](https://opentelemetry.io/blog/2024/hardening-the-collector-one/)
+## OpenTelemetry Security Best Practices (blog) --> [Hardening the Collector Episode 1: A new default bind address](https://opentelemetry.io/blog/2024/hardening-the-collector-one/)
 
 ### FAQ
 
@@ -229,6 +245,8 @@ OpenTelemetry Security Best Practices (blog) --> [Hardening the Collector Episod
 **Q**: How should I generate the certs?
 
 **A**: See /docs/GEN-CERTS.md or use Vault/cert-manager in prod. Key is to ensure SANs match what clients actually use.
+
+---
 
 ## Live Example
 
