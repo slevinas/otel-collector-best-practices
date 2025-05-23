@@ -230,6 +230,14 @@ OpenTelemetry Security Best Practices (blog) --> [Hardening the Collector Episod
 
 **A**: See /docs/GEN-CERTS.md or use Vault/cert-manager in prod. Key is to ensure SANs match what clients actually use.
 
+
+## Live Example
+
+See [this demo branch](https://github.com/slevinas/xplg-api-benchmaker-runner/tree/demo/otel-collector-mtls-taging-processor-file-exporter) for a runnable project using the configs and best practices described here.
+
+---
+
+
 **Maintained by the Observability/QA team – see /docs/ for more in-depth scenarios and config examples.**
 
 ---
