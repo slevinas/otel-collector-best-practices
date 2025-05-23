@@ -212,13 +212,13 @@ curl -v https://localhost:4318/v1/metrics \
 
 ### Further Reading
 
-OpenTelemetry Collector TLS/mTLS Authentication (official docs)
+[OpenTelemetry Collector TLS/mTLS Authentication (official docs)](https://opentelemetry.io/docs/collector/configuration/#authentication)
 
-OpenTelemetry Python SDK: OTLP Exporter
+[OpenTelemetry Python SDK: OTLP Exporter](https://opentelemetry-python.readthedocs.io/en/latest/exporter/otlp/otlp.html)
 
-Collector Processors: transform
+[Collector Processors: transform](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor)
 
-OpenTelemetry Security Best Practices (blog)
+OpenTelemetry Security Best Practices (blog) --> [Hardening the Collector Episode 1: A new default bind address](https://opentelemetry.io/blog/2024/hardening-the-collector-one/)
 
 ### FAQ
 
