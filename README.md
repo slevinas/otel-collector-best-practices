@@ -214,7 +214,7 @@ curl -v https://localhost:4318/v1/metrics \
 
 [OpenTelemetry Collector TLS/mTLS Authentication (official docs)](https://opentelemetry.io/docs/collector/configuration/#authentication)
 
-[][OpenTelemetry Python SDK: OTLP Exporter](https://opentelemetry-python.readthedocs.io/en/latest/exporter/otlp/otlp.html)
+[OpenTelemetry Python SDK: OTLP Exporter](https://opentelemetry-python.readthedocs.io/en/latest/exporter/otlp/otlp.html)
 
 [Collector Processors: transform](https://github.com/open-telemetry/opentelemetry-collector/tree/main/processor)
 
@@ -223,17 +223,13 @@ OpenTelemetry Security Best Practices (blog) --> [Hardening the Collector Episod
 ### FAQ
 
 **Q**: Should we use OIDC/JWT in addition to mTLS?
+
 **A**: For internal/sidecar Collector deployments, mTLS is usually sufficient and simpler. For multi-tenant/Internet-facing endpoints, consider auth extensions as a next step.
 
 **Q**: How should I generate the certs?
+
 **A**: See /docs/GEN-CERTS.md or use Vault/cert-manager in prod. Key is to ensure SANs match what clients actually use.
 
-Maintained by the Observability/QA team – see /docs/ for more in-depth scenarios and config examples.
-
-markdown
+**Maintained by the Observability/QA team – see /docs/ for more in-depth scenarios and config examples.**
 
 ---
-
-```
-
-```
