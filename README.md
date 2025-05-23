@@ -51,14 +51,17 @@ This repo demonstrates **secure OpenTelemetry data collection** using TLS/mTLS a
 - Client cert/key (for instrumented apps; signed by the same CA)
 
 **Directory (Docker/K8s):**
+
+```
 /etc/otel/certs/
 ├── ca.crt
 ├── server.crt
 ├── server.key
 ├── client.crt
 ├── client.key
+```
 
-_Set_ file permissions before mounting:
+- Set file permissions before mounting:
 
 ```bash
 chmod 600 server.key client.key
