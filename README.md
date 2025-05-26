@@ -18,6 +18,7 @@ This repo demonstrates **secure OpenTelemetry data collection** using TLS/mTLS a
 - [Python OTel SDK Example](#6--python-otel-sdk-example)
 - [Enriching Metrics (Transform/Attributes)](#enriching-metrics-transformattributes)
 - [Testing TLS/mTLS Connectivity](#testing-tlsmtls-connectivity)
+- [Link to Live Example](#live-example)
 - [Troubleshooting](#troubleshooting)
 - [Further Reading](#further-reading)
 
