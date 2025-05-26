@@ -15,6 +15,7 @@ This repo demonstrates **secure OpenTelemetry data collection** using TLS/mTLS a
 - [Certificate Lifecycle & File Layout](#certificate-lifecycle--file-layout)
 - [Collector Configuration (TLS/mTLS)](#collector-configuration-tlsmtls)
 - [Docker Compose Example](#docker-compose-example)
+- [Python OTel SDK Example](#6--python-otel-sdk-example)
 - [Enriching Metrics (Transform/Attributes)](#enriching-metrics-transformattributes)
 - [Testing TLS/mTLS Connectivity](#testing-tlsmtls-connectivity)
 - [Troubleshooting](#troubleshooting)
@@ -153,6 +154,91 @@ services:
 
 ---
 
+- ### 6. 🐍 Python OTel SDK Example
+
+Here's how to configure a Python service to send telemetry securely to the collector using mTLS:
+
+**6.1. Set required environment variables** (in your `.env`):
+
+```env
+OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=https://otel-collector:4318/v1/metrics
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://otel-collector:4318/v1/traces
+OTEL_EXPORTER_OTLP_CERTIFICATE=certs/ca.crt
+OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE=certs/client.crt
+OTEL_EXPORTER_OTLP_CLIENT_KEY=certs/client.key
+```
+
+> **Note:**  
+> When running both your Python service and the OTel Collector in the same `docker-compose` network, you can use the collector's service name as the hostname (e.g., `otel-collector:4318` as above).
+
+> If your Python service runs outside Docker, use `localhost:4318` instead, since `otel-collector` will not resolve as a DNS name on your local machine.
+
+- .env for running locally(This actual example):
+
+```env
+
+OTEL_EXPORTER_OTLP_METRICS_ENDPOINT=https://localhost:4318/v1/metrics
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=https://localhost:4318/v1/traces
+OTEL_EXPORTER_OTLP_ENDPOINT=https://localhost:4318
+
+
+OTEL_EXPORTER_OTLP_CERTIFICATE=certs/ca.crt
+OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE=certs/client.crt
+OTEL_EXPORTER_OTLP_CLIENT_KEY=certs/client.key
+OTEL_EXPORTER_OTLP_INSECURE=false
+
+```
+
+#### 6.2. Python setup code:
+
+```python
+import os
+from dotenv import load_dotenv
+from opentelemetry import trace, metrics
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+
+load_dotenv()  # Load env vars
+
+resource = Resource.create({"service.name": "py-app-for-otel-collectors-example"})
+cert = os.environ["OTEL_EXPORTER_OTLP_CERTIFICATE"]
+client_cert = os.environ["OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE"]
+client_key = os.environ["OTEL_EXPORTER_OTLP_CLIENT_KEY"]
+
+metrics.set_meter_provider(MeterProvider(
+    resource=resource,
+    metric_readers=[
+        PeriodicExportingMetricReader(OTLPMetricExporter(
+            endpoint=os.environ["OTEL_EXPORTER_OTLP_METRICS_ENDPOINT"],
+            certificate_file=cert,
+            client_certificate_file=client_cert,
+            client_key_file=client_key,
+        ))
+    ]
+))
+
+trace.set_tracer_provider(TracerProvider(
+    resource=resource,
+    active_span_processor=BatchSpanProcessor(OTLPSpanExporter(
+        endpoint=os.environ["OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"],
+        certificate_file=cert,
+        client_certificate_file=client_cert,
+        client_key_file=client_key,
+    ))
+))
+
+meter = metrics.get_meter("example-meter")
+tracer = trace.get_tracer("example-tracer")
+
+```
+
+---
+
 ### Enriching Metrics (Transform/Attributes)
 
 ##### Static attribute:
@@ -180,6 +266,8 @@ processors:
         statements:
           - set(datapoint.attributes["client_id"], resource.attributes["service.name"])
 ```
+
+---
 
 ---
 
@@ -226,7 +314,17 @@ Symptom Diagnosis Solution
 
 ---
 
-### Further Reading
+### Further Reading and Additional Resources:
+
+##### 📚 Additional Resources
+
+For further insights and best practices, consider reviewing the following resources:
+
+[OpenTelemetry Collector Contrib Repository](https://github.com/open-telemetry/opentelemetry-collector-contrib)
+
+A Beginner's Guide to the OpenTelemetry Collector
+
+OpenTelemetry Collector Best Practices
 
 [OpenTelemetry Collector TLS/mTLS Authentication (official docs)](https://opentelemetry.io/docs/collector/configuration/#authentication)
 
