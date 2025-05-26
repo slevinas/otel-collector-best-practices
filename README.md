@@ -159,6 +159,19 @@ services:
 
 Here's how to configure a Python service to send telemetry securely to the collector using mTLS:
 
+#### ⚙️ ENVIRONMENT VARIABLES REFERENCE
+
+```
+Variable	                                   Purpose
+OTEL_EXPORTER_OTLP_METRICS_ENDPOINT	           OTel metrics HTTPS endpoint
+OTEL_EXPORTER_OTLP_TRACES_ENDPOINT	           OTel traces HTTPS endpoint
+OTEL_EXPORTER_OTLP_CERTIFICATE               	 CA cert path
+OTEL_EXPORTER_OTLP_CLIENT_CERTIFICATE	         Client cert path
+OTEL_EXPORTER_OTLP_CLIENT_KEY	                 Client key path
+OTEL_EXPORTER_OTLP_INSECURE	                   Set false for TLS/mTLS
+
+```
+
 **6.1. Set required environment variables** (in your `.env`):
 
 ```env
